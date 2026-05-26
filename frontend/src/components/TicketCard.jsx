@@ -11,8 +11,16 @@ const formatAge = (minutes) => {
   return `${days}d ${hrs}h`;
 };
 
+const SLA_TARGETS_DESC = {
+  urgent: '1h',
+  high: '4h',
+  medium: '24h',
+  low: '72h'
+};
+
 export default function TicketCard({ ticket, onTransition, onDelete, onDragStart }) {
   const { _id, subject, description, customerEmail, priority, status, ageMinutes, slaBreached } = ticket;
+  const slaTarget = SLA_TARGETS_DESC[priority] || '72h';
 
   const handleMoveLeft = (e) => {
     e.stopPropagation();
@@ -36,7 +44,6 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
     }
   };
 
-  // Determine button displays
   const showLeft = status !== 'open';
   const showRight = status !== 'closed';
 
@@ -46,6 +53,7 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
       draggable
       onDragStart={handleDragStart}
       id={`ticket-${_id}`}
+      title={`Subject: ${subject}\nPriority: ${priority.toUpperCase()}\nTarget SLA: ${slaTarget}\nElapsed Age: ${formatAge(ageMinutes)}`}
     >
       <div className="card-header">
         <span className="card-subject">{subject}</span>
@@ -62,12 +70,14 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
       </div>
 
       <div className="card-footer">
-        <div className="card-age">
+        <div className="card-age" title={`SLA target for ${priority} priority is ${slaTarget}`}>
           <svg style={{width:'12px', height:'12px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          {formatAge(ageMinutes)}
+          <span>{formatAge(ageMinutes)}</span>
+          <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>({slaTarget})</span>
+          
           {slaBreached && (
-            <span className="sla-badge sla-breached-badge">
-              SLA BREACHED
+            <span className="sla-badge sla-breached-badge" title={`SLA Breached! Elapsed age is greater than target ${slaTarget}.`}>
+              BREACHED
             </span>
           )}
         </div>
@@ -77,7 +87,7 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
             <button
               onClick={handleMoveLeft}
               className="btn-action"
-              title="Move backward"
+              title="Move to previous status"
               aria-label="Move backward"
             >
               ←
@@ -87,7 +97,7 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
             <button
               onClick={handleMoveRight}
               className="btn-action"
-              title="Move forward"
+              title="Move to next status"
               aria-label="Move forward"
             >
               →
@@ -97,7 +107,7 @@ export default function TicketCard({ ticket, onTransition, onDelete, onDragStart
             onClick={(e) => { e.stopPropagation(); onDelete(_id); }}
             className="btn-action"
             style={{ color: '#ef4444' }}
-            title="Delete ticket"
+            title="Delete permanently"
             aria-label="Delete ticket"
           >
             <svg style={{width:'12px', height:'12px'}} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>

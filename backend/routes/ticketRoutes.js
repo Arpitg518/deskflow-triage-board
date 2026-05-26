@@ -9,10 +9,7 @@ import {
 
 const router = express.Router();
 
-// Specific routes first to prevent conflicts with :id
 router.get('/stats', getTicketStats);
-
-// General resource routes
 router.post('/', createTicket);
 router.get('/', getTickets);
 router.patch('/:id', updateTicket);

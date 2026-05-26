@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function TicketForm({ isOpen, onClose, onSubmit }) {
   const [subject, setSubject] = useState('');
@@ -9,46 +9,51 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
   const [priority, setPriority] = useState('low');
   
   const [errors, setErrors] = useState({});
-  const [submitting, setSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = {};
+    const localErrors = {};
 
     if (!subject.trim()) {
-      newErrors.subject = 'Subject is required';
+      localErrors.subject = 'Subject heading is required';
     }
     if (!description.trim()) {
-      newErrors.description = 'Description is required';
+      localErrors.description = 'Description of the issue is required';
     }
     if (!customerEmail.trim()) {
-      newErrors.customerEmail = 'Customer email is required';
-    } else if (!emailRegex.test(customerEmail)) {
-      newErrors.customerEmail = 'Please enter a valid email format';
+      localErrors.customerEmail = 'Customer email address is required';
+    } else if (!emailPattern.test(customerEmail)) {
+      localErrors.customerEmail = 'Please provide a valid email format (e.g., agent@domain.com)';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(localErrors).length > 0) {
+      setErrors(localErrors);
       return;
     }
 
     setErrors({});
-    setSubmitting(true);
+    setIsSubmitting(true);
 
-    const success = await onSubmit({
+    const result = await onSubmit({
       subject: subject.trim(),
       description: description.trim(),
       customerEmail: customerEmail.trim(),
       priority
     });
 
-    setSubmitting(false);
-    if (success) {
+    setIsSubmitting(false);
+
+    if (result.success) {
       setSubject('');
       setDescription('');
       setCustomerEmail('');
       setPriority('low');
       onClose();
+    } else if (result.validationErrors) {
+      setErrors(result.validationErrors);
+    } else if (result.generalError) {
+      setErrors({ general: result.generalError });
     }
   };
 
@@ -75,7 +80,13 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="ticket-form" noValidate id="ticket-form-elem">
+        {errors.general && (
+          <div className="form-error" style={{ marginBottom: '1rem', padding: '0.5rem', background: 'rgba(239,68,68,0.1)', borderRadius: '4px' }}>
+            {errors.general}
+          </div>
+        )}
+
+        <form onSubmit={handleFormSubmit} className="ticket-form" noValidate id="ticket-form-elem">
           <div className="form-group">
             <label className="form-label" htmlFor="ticket-subject">
               Subject
@@ -86,7 +97,7 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
               className="form-input"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="e.g. System is down"
+              placeholder="e.g. Database connection timeouts"
             />
             {errors.subject && <span className="form-error">{errors.subject}</span>}
           </div>
@@ -100,7 +111,7 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
               className="form-input form-textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the issue in detail..."
+              placeholder="Describe the problem, steps to reproduce, or errors observed..."
             />
             {errors.description && <span className="form-error">{errors.description}</span>}
           </div>
@@ -115,7 +126,7 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
               className="form-input"
               value={customerEmail}
               onChange={(e) => setCustomerEmail(e.target.value)}
-              placeholder="customer@email.com"
+              placeholder="customer@domain.com"
             />
             {errors.customerEmail && <span className="form-error">{errors.customerEmail}</span>}
           </div>
@@ -131,10 +142,10 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
               onChange={(e) => setPriority(e.target.value)}
               style={{ width: '100%' }}
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent (1 hour target)</option>
+              <option value="low">Low (72 hr SLA)</option>
+              <option value="medium">Medium (24 hr SLA)</option>
+              <option value="high">High (4 hr SLA)</option>
+              <option value="urgent">Urgent (1 hr SLA)</option>
             </select>
           </div>
 
@@ -142,10 +153,10 @@ export default function TicketForm({ isOpen, onClose, onSubmit }) {
             type="submit"
             className="btn-primary"
             style={{ marginTop: '1rem', width: '100%' }}
-            disabled={submitting}
+            disabled={isSubmitting}
             id="btn-submit-ticket"
           >
-            {submitting ? 'Creating Ticket...' : 'Submit Ticket'}
+            {isSubmitting ? 'Registering Ticket...' : 'Register Ticket'}
           </button>
         </form>
       </div>

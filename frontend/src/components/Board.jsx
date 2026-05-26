@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import TicketCard from './TicketCard';
 
 const COLUMNS = [
-  { id: 'open', title: 'Open', color: '#3b82f6' },
-  { id: 'in_progress', title: 'In Progress', color: '#f59e0b' },
-  { id: 'resolved', title: 'Resolved', color: '#10b981' },
-  { id: 'closed', title: 'Closed', color: '#6b7280' }
+  { id: 'open', title: 'Open', color: '#2563eb' },
+  { id: 'in_progress', title: 'In Progress', color: '#d97706' },
+  { id: 'resolved', title: 'Resolved', color: '#059669' },
+  { id: 'closed', title: 'Closed', color: '#64748b' }
 ];
 
 const STATUS_ORDER = ['open', 'in_progress', 'resolved', 'closed'];
