@@ -1,5 +1,7 @@
 # DeskFlow — SLA Support Ticket Triage Board
 
+[![Deploy to Render](https://render.com/images/deploy-to-render.svg)](https://render.com/deploy?repo=https://github.com/Arpitg518/deskflow-triage-board)
+
 DeskFlow is a modern support ticket triage dashboard built on the MERN stack (MongoDB, Express, React, and Node.js). It is designed to help customer support agents visualizes operational workflows, track resolution targets, and ensure compliance with priority-based Service Level Agreements (SLAs).
 
 ---
