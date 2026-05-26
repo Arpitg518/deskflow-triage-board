@@ -1,2 +1,2 @@
 # Redirect rule to route frontend API requests to the deployed backend
-/api/*  https://YOUR-BACKEND-SERVICE-NAME.onrender.com/api/:splat  200
+/api/*  https://deskflow-backend-41dt.onrender.com/api/:splat  200
